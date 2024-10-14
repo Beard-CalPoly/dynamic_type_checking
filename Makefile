@@ -6,21 +6,19 @@ CLANGPP := $(BINDIR)/clang++
 OPT := $(BINDIR)/opt
 lld := $(BINDIR)/lld
 
-CBINS := test_shadow_lib.exe demo_dynamic_type_check.exe
+C_SRCS := $(wildcard *.c)
+CBINS := $(C_SRCS:%.c=%.exe)
 
 all: $(CBINS) 
 
-test_shadow_lib.exe: test_shadow_lib.ll shadowlib.ll
-	$(CLANGPP) $^ -o $@
-
-demo_dynamic_type_check.exe: demo_dynamic_type_check.ll shadowlib.ll
+%.exe: %.ll shadowlib.ll
 	$(CLANGPP) $^ -o $@
 
 shadowlib.ll: shadowlib.cpp
 	$(CLANGPP) -S -emit-llvm -o $@ $<
 
 %.ll: %.c
-	$(CLANG) -S -emit-llvm -o $@ $<
+	$(CLANG) -O1 -S -emit-llvm -o $@ $<
 
 .PHONY: clean
 clean:
